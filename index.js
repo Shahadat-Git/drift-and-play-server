@@ -27,7 +27,13 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         await client.connect();
-        
+        const toyCollection = client.db('drift&playDB').collection('toys');
+
+        app.post('/toys', async (req, res) => {
+            const toy = req.body;
+            const result = await toyCollection.insertOne(toy);
+            res.send(result)
+        });
 
 
 
