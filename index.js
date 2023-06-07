@@ -29,6 +29,15 @@ async function run() {
         await client.connect();
         const toyCollection = client.db('drift&playDB').collection('toys');
 
+        app.get('/toys', async (req, res) => {
+            let query = {};
+            if (req.query?.email) {
+                query = { sellerEmail: req.query.email }
+            }
+            const result = await toyCollection.find(query).toArray();
+            res.send(result)
+        })
+
         app.post('/toys', async (req, res) => {
             const toy = req.body;
             const result = await toyCollection.insertOne(toy);
