@@ -34,9 +34,6 @@ async function run() {
             if (req.query?.email) {
                 query = { ...query, sellerEmail: req.query.email }
             }
-            if (req.query?.id) {
-                query = { ...query, _id: new ObjectId(req.query.id) }
-            }
             const result = await toyCollection.find(query).toArray();
             res.send(result)
         })
@@ -47,9 +44,32 @@ async function run() {
             res.send(result)
         });
 
-        app.delete('/toys', async (req, res) => {
-            const id = req.query?.id;
-            console.log(id)
+
+        app.get('/toys/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await toyCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.put('/toys/:id', async (req, res) => {
+            const id = req.params.id;
+            const data = req.body;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    price: data.price,
+                    quantity: data.quantity,
+                    description: data.description,
+                }
+            }
+            const result = await toyCollection.updateOne(query, updateDoc, options);
+            res.send(result);
+        });
+
+        app.delete('/toys/:id', async (req, res) => {
+            const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await toyCollection.deleteOne(query);
             res.send(result);
