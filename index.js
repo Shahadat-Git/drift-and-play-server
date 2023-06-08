@@ -53,7 +53,18 @@ async function run() {
                     ]
                 }
             }
-            const result = await toyCollection.find(query).limit(limit).toArray();
+
+            let sort;
+            if (req.query?.sort) {
+                if (req.query.sort === 'descending') {
+                    sort = { price: -1 }
+                }
+                else {
+                    sort = { price: 1 }
+                }
+            }
+
+            const result = await toyCollection.find(query).sort(sort).limit(limit).toArray();
             res.send(result)
         })
 
