@@ -32,6 +32,7 @@ async function run() {
         app.get('/toys', async (req, res) => {
             const limit = parseInt(req.query?.limit);
             const search = req.query?.name;
+            const category = req.query?.category;
             let query = {};
             if (req.query?.email) {
                 query = { ...query, sellerEmail: req.query.email }
@@ -39,8 +40,16 @@ async function run() {
 
             if (req.query?.name) {
                 query = {
-                    ...query, '$or': [
+                    ...query, $or: [
                         { name: { $regex: search, $options: "i" } }
+                    ]
+                }
+            }
+
+            if (req.query?.category) {
+                query = {
+                    ...query, $or: [
+                        { subCategory: { $regex: category, $options: "i" } }
                     ]
                 }
             }
