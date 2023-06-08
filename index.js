@@ -30,11 +30,21 @@ async function run() {
         const toyCollection = client.db('drift&playDB').collection('toys');
 
         app.get('/toys', async (req, res) => {
+            const limit = parseInt(req.query?.limit);
+            const search = req.query?.name;
             let query = {};
             if (req.query?.email) {
                 query = { ...query, sellerEmail: req.query.email }
             }
-            const result = await toyCollection.find(query).toArray();
+
+            if (req.query?.name) {
+                query = {
+                    ...query, '$or': [
+                        { name: { $regex: search, $options: "i" } }
+                    ]
+                }
+            }
+            const result = await toyCollection.find(query).limit(limit).toArray();
             res.send(result)
         })
 
