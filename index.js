@@ -66,9 +66,15 @@ async function run() {
 
         app.get('/toys/:id', async (req, res) => {
             const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-            const result = await toyCollection.findOne(query);
-            res.send(result);
+
+            if (id.length === 24) {
+                const query = { _id: new ObjectId(id) };
+                const result = await toyCollection.findOne(query);
+                res.send(result);
+            }
+            else {
+                res.send({ error: true })
+            }
         });
 
         app.put('/toys/:id', async (req, res) => {
@@ -93,6 +99,37 @@ async function run() {
             const result = await toyCollection.deleteOne(query);
             res.send(result);
         });
+
+        app.get('/gallery', async (req, res) => {
+            const limit = parseInt(req.query?.limit);
+            const search = req.query?.name;
+            const category = req.query?.category;
+            let query = {};
+            if (req.query?.email) {
+                query = { ...query, sellerEmail: req.query.email }
+            }
+
+            if (req.query?.name) {
+                query = {
+                    ...query, $or: [
+                        { name: { $regex: search, $options: "i" } }
+                    ]
+                }
+            }
+
+            if (req.query?.category) {
+                query = {
+                    ...query, $or: [
+                        { subCategory: { $regex: category, $options: "i" } }
+                    ]
+                }
+            }
+
+            const projection = { picture: 1, name: 1 };
+            const sort = { rating: -1 };
+            const result = await toyCollection.find(query).sort(sort).project(projection).limit(limit).toArray();
+            res.send(result)
+        })
 
 
 
