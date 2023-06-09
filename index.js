@@ -26,7 +26,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        client.connect();
+        await client.connect();
         const toyCollection = client.db('drift&playDB').collection('toys');
 
         app.get('/toys', async (req, res) => {
