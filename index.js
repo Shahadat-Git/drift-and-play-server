@@ -6,8 +6,8 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // middleware
-app.use(cors())
-app.use(express.json())
+app.use(cors());
+app.use(express.json());
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@simple-crud-server.g8zjk15.mongodb.net/?retryWrites=true&w=majority`;
@@ -26,7 +26,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
-        await client.connect();
+        client.connect();
         const toyCollection = client.db('drift&playDB').collection('toys');
 
         app.get('/toys', async (req, res) => {
@@ -88,11 +88,10 @@ async function run() {
             }
         });
 
-        app.put('/toys/:id', async (req, res) => {
+        app.patch('/toys/:id', async (req, res) => {
             const id = req.params.id;
             const data = req.body;
             const query = { _id: new ObjectId(id) };
-            const options = { upsert: true };
             const updateDoc = {
                 $set: {
                     price: data.price,
@@ -100,7 +99,7 @@ async function run() {
                     description: data.description,
                 }
             }
-            const result = await toyCollection.updateOne(query, updateDoc, options);
+            const result = await toyCollection.updateOne(query, updateDoc);
             res.send(result);
         });
 
@@ -111,6 +110,7 @@ async function run() {
             res.send(result);
         });
 
+        // for gallery
         app.get('/gallery', async (req, res) => {
             const limit = parseInt(req.query?.limit);
             const search = req.query?.name;
